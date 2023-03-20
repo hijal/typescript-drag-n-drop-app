@@ -35,6 +35,25 @@ interface Validatable {
   max?: number;
 }
 
+/**
+ * Dragable interface
+ */
+
+interface Dragable {
+  dragStartHandler(event: DragEvent): void;
+  dragEndHandler(event: DragEvent): void;
+}
+
+/**
+ * Dragtarget interface
+ */
+
+interface DragTarget {
+  dragOverHandler(event: DragEvent): void;
+  dropHandler(event: DragEvent): void;
+  dragLeaveHandler(event: DragEvent): void;
+}
+
 class Project {
   constructor(
     public id: string,
@@ -199,7 +218,10 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
  * Project item class
  */
 
-class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
+class ProjectItem
+  extends Component<HTMLUListElement, HTMLLIElement>
+  implements Dragable
+{
   private project: Project;
 
   get persons() {
@@ -217,7 +239,19 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
     this.renderContent();
   }
 
-  configure(): void {}
+  @Autobinding
+  dragStartHandler(event: DragEvent) {
+    console.log(event);
+  }
+
+  dragEndHandler(_: DragEvent) {
+    console.log('drag end');
+  }
+
+  configure(): void {
+    this.element.addEventListener('dragstart', this.dragStartHandler);
+    this.element.addEventListener('dragend', this.dragEndHandler);
+  }
   renderContent(): void {
     (this.element.querySelector('h2')! as HTMLElement).textContent =
       this.project.title;
